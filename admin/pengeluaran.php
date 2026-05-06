@@ -10,7 +10,7 @@ include '../includes/navbar.php';
 require '../config/koneksi.php';
 ?>
 
-<div class="container-fluid">
+<div class="content-wrapper" style="margin-left: 250px; width: calc(100% - 250px); padding: 20px; min-height: 100vh; background-color: #f8f9fa;">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="fw-bold">Catatan Pengeluaran Operasional</h3>
         <button type="button" class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambah">
@@ -122,7 +122,7 @@ require '../config/koneksi.php';
             </table>
         </div>
     </div>
-</div>
+
 
 <!-- Modal Tambah Pengeluaran -->
 <div class="modal fade" id="modalTambah" tabindex="-1" aria-hidden="true">
@@ -168,6 +168,7 @@ require '../config/koneksi.php';
             </form>
         </div>
     </div>
+</div>
 </div>
 
 <?php include '../includes/footer.php'; ?>

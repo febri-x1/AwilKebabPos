@@ -10,7 +10,7 @@ include '../includes/navbar.php';
 require '../config/koneksi.php';
 ?>
 
-<div class="container-fluid">
+<div class="content-wrapper" style="margin-left: 250px; width: calc(100% - 250px); padding: 20px; min-height: 100vh; background-color: #f8f9fa;">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="fw-bold">Kelola Data Topping</h3>
         <!-- Tombol Pemicu Modal Tambah -->

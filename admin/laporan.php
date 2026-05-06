@@ -49,7 +49,7 @@ $laba_bersih = $omzet - $pengeluaran;
     }
 </style>
 
-<div class="container-fluid mb-5">
+<div class="content-wrapper" style="margin-left: 250px; width: calc(100% - 250px); padding: 20px; min-height: 100vh; background-color: #f8f9fa;">
     <div class="d-flex justify-content-between align-items-center mb-3 d-print-none">
         <h3 class="fw-bold">Laporan Keuangan</h3>
         <button onclick="window.print()" class="btn btn-secondary fw-bold">

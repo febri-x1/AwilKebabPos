@@ -26,7 +26,7 @@ $total_trx = $data_hari_ini['total_transaksi'] ? $data_hari_ini['total_transaksi
 $omzet_hari_ini = $data_hari_ini['omzet_hari_ini'] ? $data_hari_ini['omzet_hari_ini'] : 0;
 ?>
 
-<div class="container-fluid">
+<div class="content-wrapper" style="margin-left: 250px; width: calc(100% - 250px); padding: 20px; min-height: 100vh; background-color: #f8f9f;">
     <div class="row mb-3">
         <div class="col-12">
             <h2 class="fw-bold">Dashboard Admin</h2>
