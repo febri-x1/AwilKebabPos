@@ -1,7 +1,10 @@
 <?php
 session_start();
-// Halaman ini bisa diakses jika user sudah login
-if (!isset($_SESSION['id_user'])) {
+require '../config/session_config.php';
+
+// Halaman ini bisa diakses jika user sudah login (pakai sesi per-tab)
+$user = get_tab_session();
+if (!$user) {
     header("Location: ../auth/login.php");
     exit;
 }
@@ -32,28 +35,53 @@ $id_penjualan = $penjualan['id_penjualan'];
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Struk - <?= $nota; ?></title>
     <style>
         /* CSS Khusus untuk Print Thermal 58mm */
-        @page { margin: 0; }
-        body { 
-            font-family: 'Courier New', Courier, monospace; 
-            font-size: 12px; 
-            width: 58mm; 
-            margin: 0 auto; 
+        @page {
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            width: 58mm;
+            margin: 0 auto;
             padding: 10px;
             color: #000;
         }
-        .center { text-align: center; }
-        .right { text-align: right; }
-        .bold { font-weight: bold; }
-        .line { border-bottom: 1px dashed #000; margin: 5px 0; }
-        table { width: 100%; border-collapse: collapse; }
-        td { vertical-align: top; padding: 2px 0; }
-        
+
+        .center {
+            text-align: center;
+        }
+
+        .right {
+            text-align: right;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .line {
+            border-bottom: 1px dashed #000;
+            margin: 5px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            vertical-align: top;
+            padding: 2px 0;
+        }
+
         /* Tombol yang tidak akan ikut ter-print */
         .btn-kembali {
             display: block;
@@ -69,12 +97,16 @@ $id_penjualan = $penjualan['id_penjualan'];
             font-weight: bold;
             box-sizing: border-box;
         }
+
         @media print {
-            .no-print { display: none; }
+            .no-print {
+                display: none;
+            }
         }
     </style>
 </head>
 <!-- Fungsi onload untuk otomatis memicu print saat halaman terbuka -->
+
 <body onload="window.print()">
 
     <div class="center">
@@ -117,24 +149,24 @@ $id_penjualan = $penjualan['id_penjualan'];
 
         while ($detail = mysqli_fetch_assoc($query_detail)):
         ?>
-        <tr>
-            <!-- Nama produk memakan 3 kolom (satu baris penuh) -->
-            <td colspan="3" class="bold"><?= $detail['nama_produk']; ?></td>
-        </tr>
-        
-        <?php if (!empty($detail['catatan_topping'])): ?>
-        <tr>
-            <td colspan="3" style="font-size: 10px; padding-left: 10px;">
-                + <?= $detail['catatan_topping']; ?>
-            </td>
-        </tr>
-        <?php endif; ?>
-        
-        <tr>
-            <td width="20%"><?= $detail['jumlah']; ?> x</td>
-            <td width="40%"><?= number_format($detail['harga_satuan'], 0, ',', '.'); ?></td>
-            <td width="40%" class="right"><?= number_format($detail['subtotal'], 0, ',', '.'); ?></td>
-        </tr>
+            <tr>
+                <!-- Nama produk memakan 3 kolom (satu baris penuh) -->
+                <td colspan="3" class="bold"><?= $detail['nama_produk']; ?></td>
+            </tr>
+
+            <?php if (!empty($detail['catatan_topping'])): ?>
+                <tr>
+                    <td colspan="3" style="font-size: 10px; padding-left: 10px;">
+                        + <?= $detail['catatan_topping']; ?>
+                    </td>
+                </tr>
+            <?php endif; ?>
+
+            <tr>
+                <td width="20%"><?= $detail['jumlah']; ?> x</td>
+                <td width="40%"><?= number_format($detail['harga_satuan'], 0, ',', '.'); ?></td>
+                <td width="40%" class="right"><?= number_format($detail['subtotal'], 0, ',', '.'); ?></td>
+            </tr>
         <?php endwhile; ?>
     </table>
 
@@ -154,7 +186,7 @@ $id_penjualan = $penjualan['id_penjualan'];
         </tr>
     </table>
     <div class="line"></div>
-    
+
     <div class="center" style="margin-top: 10px;">
         <p style="font-size: 10px;">
             Terima Kasih Atas Kunjungan Anda<br>
@@ -168,4 +200,5 @@ $id_penjualan = $penjualan['id_penjualan'];
     </div>
 
 </body>
+
 </html>

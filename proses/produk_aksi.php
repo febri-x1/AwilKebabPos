@@ -1,7 +1,9 @@
 <?php
 session_start();
-// Pastikan hanya admin yang bisa mengakses proses ini
-if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
+require '../config/session_config.php';
+
+$user = get_tab_session();
+if (!$user || ($user['role'] ?? '') !== 'admin') {
     header("Location: ../auth/login.php");
     exit;
 }
@@ -20,14 +22,13 @@ if ($aksi == 'tambah') {
 
     $query = "INSERT INTO produk (nama_produk, harga_jual, kategori, status_stok) 
               VALUES ('$nama_produk', '$harga_jual', '$kategori', '$status_stok')";
-              
-    if(mysqli_query($koneksi, $query)) {
+
+    if (mysqli_query($koneksi, $query)) {
         header("Location: ../admin/master_produk.php?pesan=sukses");
     } else {
         header("Location: ../admin/master_produk.php?pesan=gagal");
     }
-} 
-elseif ($aksi == 'edit') {
+} elseif ($aksi == 'edit') {
     // Tangkap data dari form modal edit
     $id_produk   = $_POST['id_produk'];
     $nama_produk = mysqli_real_escape_string($koneksi, $_POST['nama_produk']);
@@ -41,27 +42,24 @@ elseif ($aksi == 'edit') {
                 kategori = '$kategori', 
                 status_stok = '$status_stok' 
               WHERE id_produk = '$id_produk'";
-              
-    if(mysqli_query($koneksi, $query)) {
+
+    if (mysqli_query($koneksi, $query)) {
         header("Location: ../admin/master_produk.php?pesan=sukses");
     } else {
         header("Location: ../admin/master_produk.php?pesan=gagal");
     }
-} 
-elseif ($aksi == 'hapus') {
+} elseif ($aksi == 'hapus') {
     // Tangkap ID produk yang akan dihapus
     $id_produk = $_POST['id_produk'];
 
     $query = "DELETE FROM produk WHERE id_produk = '$id_produk'";
-              
-    if(mysqli_query($koneksi, $query)) {
+
+    if (mysqli_query($koneksi, $query)) {
         header("Location: ../admin/master_produk.php?pesan=sukses");
     } else {
         header("Location: ../admin/master_produk.php?pesan=gagal");
     }
-}
-else {
+} else {
     // Jika aksi tidak dikenali, kembalikan ke halaman master
     header("Location: ../admin/master_produk.php");
 }
-?>

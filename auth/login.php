@@ -2,12 +2,11 @@
 session_start();
 
 // Jika sudah login, arahkan ke dashboard masing-masing sesuai role
-if (isset($_SESSION['role'])) {
-    if ($_SESSION['role'] == 'admin') {
-        header("Location: ../admin/dashboard.php");
-    } else {
-        header("Location: ../kasir/transaksi.php");
-    }
+if (isset($_SESSION['admin'])) {
+    header("Location: ../admin/dashboard.php");
+    exit;
+} elseif (isset($_SESSION['kasir'])) {
+    header("Location: ../kasir/transaksi.php");
     exit;
 }
 
@@ -22,6 +21,10 @@ include '../includes/header.php';
             
             <?php if(isset($_GET['pesan']) && $_GET['pesan'] == 'gagal'): ?>
                 <div class="alert alert-danger text-center">Username atau Password salah!</div>
+            <?php elseif(isset($_GET['pesan']) && $_GET['pesan'] == 'password_berhasil_diubah'): ?>
+                <div class="alert alert-success text-center">Password berhasil diubah! Silakan login kembali.</div>
+            <?php elseif(isset($_GET['pesan']) && $_GET['pesan'] == 'timeout'): ?>
+                <div class="alert alert-warning text-center">Sesi Anda telah berakhir. Silakan login kembali.</div>
             <?php endif; ?>
 
             <form action="proses_login.php" method="POST">

@@ -1,13 +1,30 @@
 <?php
 session_start();
-if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
+require '../config/session_config.php';
+
+$user = get_tab_session();
+if (!$user || ($user['role'] ?? '') !== 'admin') {
     header("Location: ../auth/login.php");
     exit;
 }
 
+$tab_token = get_tab_token();
+
 include '../includes/header.php';
 include '../includes/navbar.php';
 require '../config/koneksi.php';
+?>
+
+<script>
+    (function(){
+        var tab = '<?= $tab_token ?>'; if(!tab) return;
+        document.addEventListener('DOMContentLoaded', function(){
+            document.querySelectorAll('form[action^="../proses/"]').forEach(function(f){
+                var i = document.createElement('input'); i.type='hidden'; i.name='tab'; i.value=tab; f.appendChild(i);
+            });
+        });
+    })();
+</script>
 ?>
 
 <div class="content-wrapper" style="margin-left: 250px; width: calc(100% - 250px); padding: 20px; min-height: 100vh; background-color: #f8f9fa;">

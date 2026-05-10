@@ -1,6 +1,9 @@
 <?php
 session_start();
-if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
+require '../config/session_config.php';
+
+$user = get_tab_session();
+if (!$user || ($user['role'] ?? '') !== 'admin') {
     header("Location: ../auth/login.php");
     exit;
 }

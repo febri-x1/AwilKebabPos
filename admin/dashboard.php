@@ -1,10 +1,11 @@
 <?php
 // admin/dashboard.php
 session_start();
+require '../config/session_config.php';
 
-// Gembok Keamanan: Cek apakah user sudah login dan role-nya admin
-if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
-    // Jika bukan admin, tendang ke halaman login
+// Ambil sesi untuk tab saat ini (atau fallback)
+$user = get_tab_session();
+if (!$user || ($user['role'] ?? '') !== 'admin') {
     header("Location: ../auth/login.php");
     exit;
 }
@@ -27,6 +28,21 @@ $omzet_hari_ini = $data_hari_ini['omzet_hari_ini'] ? $data_hari_ini['omzet_hari_
 ?>
 
 <div class="content-wrapper" style="margin-left: 250px; width: calc(100% - 250px); padding: 20px; min-height: 100vh; background-color: #f8f9f;">
+    <?php if(isset($_SESSION['pesan_error'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> <?= $_SESSION['pesan_error'] ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <?php unset($_SESSION['pesan_error']); ?>
+    <?php endif; ?>
+
+    <?php if(isset($_SESSION['pesan_sukses'])): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> <?= $_SESSION['pesan_sukses'] ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <?php unset($_SESSION['pesan_sukses']); ?>
+    <?php endif; ?>
     <div class="row mb-3">
         <div class="col-12">
             <h2 class="fw-bold">Dashboard Admin</h2>
@@ -64,6 +80,7 @@ $omzet_hari_ini = $data_hari_ini['omzet_hari_ini'] ? $data_hari_ini['omzet_hari_
                     <h5 class="card-title">Akses Cepat</h5>
                     <div class="d-grid gap-2 mt-3">
                         <a href="master_produk.php" class="btn btn-dark">Kelola Menu Kebab</a>
+                        <a href="master_promo.php" class="btn btn-outline-primary">Kelola Promo</a>
                         <a href="pengeluaran.php" class="btn btn-outline-dark">Catat Pengeluaran</a>
                     </div>
                 </div>
@@ -72,7 +89,40 @@ $omzet_hari_ini = $data_hari_ini['omzet_hari_ini'] ? $data_hari_ini['omzet_hari_
     </div>
 </div>
 
-<?php 
+<script>
+// Validasi form ubah password saat disubmit
+document.getElementById('formUbahPassword')?.addEventListener('submit', function(e) {
+    const passwordLama = document.getElementById('passwordLama').value;
+    const passwordBaru = document.getElementById('passwordBaru').value;
+    const passwordKonfirmasi = document.getElementById('passwordKonfirmasi').value;
+
+    if (!passwordLama || !passwordBaru || !passwordKonfirmasi) {
+        e.preventDefault();
+        alert('Semua field harus diisi!');
+        return false;
+    }
+
+    if (passwordBaru.length < 6) {
+        e.preventDefault();
+        alert('Password baru minimal 6 karakter!');
+        return false;
+    }
+
+    if (passwordBaru !== passwordKonfirmasi) {
+        e.preventDefault();
+        alert('Password baru dan konfirmasi tidak cocok!');
+        return false;
+    }
+
+    // Tampilkan loading
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Proses...';
+    submitBtn.disabled = true;
+});
+</script>
+
+<?php
 // Memanggil footer
-include '../includes/footer.php'; 
+include '../includes/footer.php';
 ?>

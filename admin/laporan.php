@@ -1,9 +1,14 @@
 <?php
 session_start();
-if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
+require '../config/session_config.php';
+
+$user = get_tab_session();
+if (!$user || ($user['role'] ?? '') !== 'admin') {
     header("Location: ../auth/login.php");
     exit;
 }
+
+$tab_token = get_tab_token();
 
 include '../includes/header.php';
 // Sembunyikan navbar saat mode print
@@ -12,7 +17,20 @@ include '../includes/navbar.php';
 echo '</div>';
 
 require '../config/koneksi.php';
+?>
 
+<script>
+    (function(){
+        var tab = '<?= $tab_token ?>'; if(!tab) return;
+        document.addEventListener('DOMContentLoaded', function(){
+            document.querySelectorAll('form[action^="../proses/"]').forEach(function(f){
+                var i = document.createElement('input'); i.type='hidden'; i.name='tab'; i.value=tab; f.appendChild(i);
+            });
+        });
+    })();
+</script>
+
+<?php
 // Menentukan rentang tanggal (Default: Awal bulan sampai akhir bulan ini)
 $tgl_mulai   = isset($_GET['tgl_mulai']) ? $_GET['tgl_mulai'] : date('Y-m-01');
 $tgl_selesai = isset($_GET['tgl_selesai']) ? $_GET['tgl_selesai'] : date('Y-m-t');
