@@ -25,6 +25,26 @@ $data_hari_ini = mysqli_fetch_assoc($query_transaksi);
 
 $total_trx = $data_hari_ini['total_transaksi'] ? $data_hari_ini['total_transaksi'] : 0;
 $omzet_hari_ini = $data_hari_ini['omzet_hari_ini'] ? $data_hari_ini['omzet_hari_ini'] : 0;
+
+$query_produk_terjual = mysqli_query($koneksi, "
+    SELECT
+        COALESCE(SUM(CASE WHEN DATE(p.tanggal_transaksi) = CURDATE() THEN d.jumlah ELSE 0 END), 0) AS harian,
+        COALESCE(SUM(CASE WHEN YEARWEEK(p.tanggal_transaksi, 1) = YEARWEEK(CURDATE(), 1) THEN d.jumlah ELSE 0 END), 0) AS mingguan,
+        COALESCE(SUM(CASE WHEN YEAR(p.tanggal_transaksi) = YEAR(CURDATE()) AND MONTH(p.tanggal_transaksi) = MONTH(CURDATE()) THEN d.jumlah ELSE 0 END), 0) AS bulanan
+    FROM detail_penjualan d
+    JOIN penjualan p ON d.id_penjualan = p.id_penjualan
+");
+$produk_terjual = mysqli_fetch_assoc($query_produk_terjual) ?: ['harian' => 0, 'mingguan' => 0, 'bulanan' => 0];
+
+$query_produk_terlaris = mysqli_query($koneksi, "
+    SELECT pr.nama_produk, COALESCE(SUM(d.jumlah), 0) AS total_terjual
+    FROM detail_penjualan d
+    JOIN penjualan p ON d.id_penjualan = p.id_penjualan
+    JOIN produk pr ON d.id_produk = pr.id_produk
+    GROUP BY d.id_produk, pr.nama_produk
+    ORDER BY total_terjual DESC, pr.nama_produk ASC
+    LIMIT 3
+");
 ?>
 
 <div class="content-wrapper" style="margin-left: 250px; width: calc(100% - 250px); padding: 20px; min-height: 100vh; background-color: #f8f9f;">
@@ -82,6 +102,84 @@ $omzet_hari_ini = $data_hari_ini['omzet_hari_ini'] ? $data_hari_ini['omzet_hari_
                         <a href="master_produk.php" class="btn btn-dark">Kelola Menu Kebab</a>
                         <a href="master_promo.php" class="btn btn-outline-primary">Kelola Promo</a>
                         <a href="pengeluaran.php" class="btn btn-outline-dark">Catat Pengeluaran</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Produk Terjual Hari Ini</h6>
+                            <h2 class="fw-bold mb-0"><?= (int)$produk_terjual['harian']; ?></h2>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">Harian</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Produk Terjual Minggu Ini</h6>
+                            <h2 class="fw-bold mb-0"><?= (int)$produk_terjual['mingguan']; ?></h2>
+                        </div>
+                        <span class="badge bg-success rounded-pill">Mingguan</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Produk Terjual Bulan Ini</h6>
+                            <h2 class="fw-bold mb-0"><?= (int)$produk_terjual['bulanan']; ?></h2>
+                        </div>
+                        <span class="badge bg-warning text-dark rounded-pill">Bulanan</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-7 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark text-white fw-bold">3 Produk Terlaris</div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center" width="10%">No</th>
+                                    <th>Produk</th>
+                                    <th class="text-end">Total Terjual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if ($query_produk_terlaris && mysqli_num_rows($query_produk_terlaris) > 0): ?>
+                                    <?php $rank = 1; while ($produk = mysqli_fetch_assoc($query_produk_terlaris)): ?>
+                                        <tr>
+                                            <td class="text-center fw-bold"><?= $rank++; ?></td>
+                                            <td><?= htmlspecialchars($produk['nama_produk']); ?></td>
+                                            <td class="text-end fw-bold"><?= (int)$produk['total_terjual']; ?></td>
+                                        </tr>
+                                    <?php endwhile; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-4">Belum ada produk terjual.</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

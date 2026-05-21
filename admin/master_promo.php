@@ -13,6 +13,10 @@ $tab_token = get_tab_token();
 include '../includes/header.php';
 include '../includes/navbar.php';
 require '../config/koneksi.php';
+require_once '../config/promo_helper.php';
+
+nonaktifkan_promo_produk_kadaluarsa($koneksi);
+$promo_unik_aktif = pastikan_promo_produk_unik($koneksi);
 ?>
 
 <script>
@@ -25,7 +29,6 @@ require '../config/koneksi.php';
         });
     })();
 </script>
-?>
 
 <!-- Penambahan Wrapper Content agar tidak tertutup sidebar -->
 <div class="content-wrapper" style="margin-left: 250px; padding: 20px; min-height: 100vh; background-color: #f8f9fa;">
@@ -50,7 +53,18 @@ require '../config/koneksi.php';
                     <i class="fas fa-exclamation-triangle me-2"></i> Gagal memproses data!
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
+            <?php elseif ($_GET['pesan'] == 'duplikat'): ?>
+                <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm" role="alert">
+                    <i class="fas fa-info-circle me-2"></i> Produk ini sudah memiliki data promo. Silakan edit promo yang ada untuk memperbarui tanggal atau statusnya.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             <?php endif; ?>
+        <?php endif; ?>
+        <?php if (!$promo_unik_aktif): ?>
+            <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm" role="alert">
+                <i class="fas fa-info-circle me-2"></i> Masih ada data promo ganda pada produk yang sama. Hapus salah satu data duplikat agar penguncian database bisa diaktifkan.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         <?php endif; ?>
 
         <div class="card border-0 shadow-sm">
@@ -125,7 +139,13 @@ require '../config/koneksi.php';
                                                         <label class="form-label">Produk</label>
                                                         <select name="id_produk" class="form-select" required>
                                                             <?php
-                                                            $produk_query = mysqli_query($koneksi, "SELECT * FROM produk");
+                                                            $produk_query = mysqli_query($koneksi, "
+                                                                SELECT pr.* 
+                                                                FROM produk pr
+                                                                LEFT JOIN promo p ON pr.id_produk = p.id_produk AND p.id_promo != '{$row['id_promo']}'
+                                                                WHERE p.id_promo IS NULL
+                                                                ORDER BY pr.nama_produk ASC
+                                                            ");
                                                             while ($produk = mysqli_fetch_assoc($produk_query)):
                                                             ?>
                                                                 <option value="<?= $produk['id_produk']; ?>" <?= ($produk['id_produk'] == $row['id_produk']) ? 'selected' : ''; ?>>
@@ -197,7 +217,13 @@ require '../config/koneksi.php';
                         <select name="id_produk" class="form-select" required>
                             <option value="" disabled selected>-- Pilih Produk --</option>
                             <?php
-                            $produk_query = mysqli_query($koneksi, "SELECT * FROM produk");
+                            $produk_query = mysqli_query($koneksi, "
+                                SELECT pr.*
+                                FROM produk pr
+                                LEFT JOIN promo p ON pr.id_produk = p.id_produk
+                                WHERE p.id_promo IS NULL
+                                ORDER BY pr.nama_produk ASC
+                            ");
                             while ($produk = mysqli_fetch_assoc($produk_query)):
                             ?>
                                 <option value="<?= $produk['id_produk']; ?>"><?= $produk['nama_produk']; ?></option>

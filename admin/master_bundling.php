@@ -13,6 +13,7 @@ $tab_token = get_tab_token();
 include '../includes/header.php';
 include '../includes/navbar.php';
 require '../config/koneksi.php';
+require_once '../config/promo_bundling_helper.php';
 
 // AUTO: Buat tabel promo_bundling jika belum ada
 $check_table = mysqli_query($koneksi, "SHOW TABLES LIKE 'promo_bundling'");
@@ -38,6 +39,9 @@ if (mysqli_num_rows($check_table) === 0) {
     
     mysqli_query($koneksi, $create_table_sql);
 }
+
+nonaktifkan_promo_bundling_kadaluarsa($koneksi);
+$ada_bundling_duplikat = promo_bundling_punya_duplikat($koneksi);
 ?>
 
 <script>
@@ -74,7 +78,18 @@ if (mysqli_num_rows($check_table) === 0) {
                     <i class="fas fa-exclamation-triangle me-2"></i> Gagal memproses data!
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
+            <?php elseif ($_GET['pesan'] == 'duplikat'): ?>
+                <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm" role="alert">
+                    <i class="fas fa-info-circle me-2"></i> Promo bundling yang sama sudah ada. Silakan edit tanggal/status pada data yang sudah ada, atau hapus data duplikatnya.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             <?php endif; ?>
+        <?php endif; ?>
+        <?php if ($ada_bundling_duplikat): ?>
+            <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm" role="alert">
+                <i class="fas fa-info-circle me-2"></i> Terdapat promo bundling duplikat pada daftar. Hapus salah satu data yang identik agar promo tidak membingungkan kasir.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         <?php endif; ?>
 
         <div class="card border-0 shadow-sm">

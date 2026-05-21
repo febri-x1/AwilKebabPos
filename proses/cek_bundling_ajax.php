@@ -4,6 +4,7 @@ require '../config/session_config.php';
 header('Content-Type: application/json');
 
 require '../config/koneksi.php';
+require_once '../config/promo_bundling_helper.php';
 
 $user_session = get_tab_session();
 if (!$user_session) {
@@ -35,6 +36,8 @@ if (mysqli_num_rows($check_table) === 0) {
     
     @mysqli_query($koneksi, $create_table_sql);
 }
+
+nonaktifkan_promo_bundling_kadaluarsa($koneksi);
 
 // Ambil bundling yang aktif
 $tgl_sekarang = date('Y-m-d');

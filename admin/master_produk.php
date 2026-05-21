@@ -140,6 +140,13 @@ require '../config/koneksi.php';
                                                             <option value="Habis" <?= ($row['status_stok'] == 'Habis') ? 'selected' : ''; ?>>Habis</option>
                                                         </select>
                                                     </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Gunakan Topping?</label>
+                                                        <select name="allow_topping" class="form-select" required>
+                                                            <option value="ya" <?= (!isset($row['allow_topping']) || $row['allow_topping'] == 'ya') ? 'selected' : ''; ?>>Ya</option>
+                                                            <option value="tidak" <?= (isset($row['allow_topping']) && $row['allow_topping'] == 'tidak') ? 'selected' : ''; ?>>Tidak</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
                                                 <div class="modal-footer bg-light">
                                                     <button type="submit" class="btn btn-warning fw-bold w-100 shadow-sm">Simpan Perubahan</button>
@@ -193,6 +200,13 @@ require '../config/koneksi.php';
                             <option value="Habis">Habis</option>
                         </select>
                     </div>
+                        <div class="mb-3">
+                            <label class="form-label">Gunakan Topping?</label>
+                            <select name="allow_topping" class="form-select" required>
+                                <option value="ya" selected>Ya</option>
+                                <option value="tidak">Tidak</option>
+                            </select>
+                        </div>
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="submit" class="btn btn-primary fw-bold w-100 shadow-sm">Simpan Produk</button>

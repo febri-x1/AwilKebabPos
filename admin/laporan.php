@@ -145,6 +145,7 @@ $laba_bersih = $omzet - $pengeluaran;
                                 <th>Tanggal</th>
                                 <th>No. Struk</th>
                                 <th class="text-end">Nominal</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -164,6 +165,9 @@ $laba_bersih = $omzet - $pengeluaran;
                                 <td><?= date('d/m/Y', strtotime($row_p['tanggal_transaksi'])); ?></td>
                                 <td><?= $row_p['nomor_struk']; ?></td>
                                 <td class="text-end">Rp <?= number_format($row_p['total_bayar'], 0, ',', '.'); ?></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="lihatDetail('<?= addslashes($row_p['nomor_struk']); ?>')">Detail</button>
+                                </td>
                             </tr>
                             <?php 
                                 endwhile; 
@@ -227,3 +231,53 @@ echo '<div class="d-print-none">';
 include '../includes/footer.php'; 
 echo '</div>';
 ?>
+
+<!-- Modal Detail Transaksi -->
+<div class="modal fade" id="modalDetailTransaksi" tabindex="-1" aria-labelledby="modalDetailLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDetailLabel">Detail Transaksi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="detail-content">Memuat...</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function lihatDetail(nomor){
+        const modalEl = new bootstrap.Modal(document.getElementById('modalDetailTransaksi'));
+        const content = document.getElementById('detail-content');
+        content.innerHTML = 'Memuat...';
+        fetch('../proses/get_penjualan_detail.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'nomor_struk=' + encodeURIComponent(nomor)
+        }).then(r=>r.json()).then(data=>{
+                if(data.status !== 'sukses'){ content.innerHTML = '<div class="text-danger">'+(data.pesan||'Gagal mengambil data')+'</div>'; return; }
+                const p = data.penjualan;
+                let html = `
+                        <div class="mb-3">
+                                <strong>No. Struk:</strong> ${p.nomor_struk}<br>
+                                <strong>Tanggal:</strong> ${p.tanggal_transaksi}<br>
+                                <strong>Petugas:</strong> ${p.petugas}<br>
+                        </div>
+                        <table class="table table-sm">
+                                <thead><tr><th>Produk</th><th>Catatan</th><th class="text-end">Harga</th><th class="text-end">Qty</th><th class="text-end">Subtotal</th></tr></thead>
+                                <tbody>
+                `;
+                data.detail.forEach(d=>{
+                        html += `<tr><td>${d.nama_produk}</td><td>${d.catatan_topping||''}</td><td class="text-end">Rp ${Number(d.harga_satuan).toLocaleString('id-ID')}</td><td class="text-end">${d.jumlah}</td><td class="text-end">Rp ${Number(d.subtotal).toLocaleString('id-ID')}</td></tr>`;
+                });
+                html += `</tbody></table><div class="text-end"><strong>Total: Rp ${Number(p.total_bayar).toLocaleString('id-ID')}</strong></div>`;
+                content.innerHTML = html;
+                modalEl.show();
+        }).catch(err=>{ content.innerHTML = '<div class="text-danger">Terjadi kesalahan</div>'; console.error(err); });
+}
+</script>
